@@ -1,0 +1,9 @@
+https://wwcat.duckdns.org:8445 {
+    encode zstd gzip
+
+    # API сервер
+    reverse_proxy /api/* api-server:8000
+
+    # Веб-интерфейс
+    reverse_proxy /* web-ui:80
+}

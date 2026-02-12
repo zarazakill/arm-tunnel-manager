@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  tor:
+    build:
+      context: .
+      dockerfile: docker/tor/Dockerfile
+    container_name: tor_proxy_tor
+    restart: unless-stopped
+    volumes:
+      - ./config/tor:/etc/tor
+      - ./logs:/var/log/tor
+    networks:
+      - tor_network
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "9050:9050" # SOCKS5 proxy port
+    environment:
+      - TOR_NICKNAME=${TOR_NICKNAME:-tor-proxy-server}
+
+  lyrebird:
+    build:
+      context: .
+      dockerfile: docker/lyrebird/Dockerfile
+    container_name: tor_proxy_lyrebird
+    restart: unless-stopped
+    volumes:
+      - ./config/lyrebird:/etc/lyrebird
+      - ./logs:/var/log/lyrebird
+    networks:
+      - tor_network
+    environment:
+      - TOR_NICKNAME=${TOR_NICKNAME:-tor-proxy-server}
+
+  api-server:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    container_name: tor_proxy_api
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - tor_network
+      - web_network
+    environment:
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASS=${ADMIN_PASS:-your_secure_password}
+      - TOR_CONTAINER_NAME=tor_proxy_tor
+      - LYREBRID_CONTAINER_NAME=tor_proxy_lyrebird
+    depends_on:
+      - tor
+      - lyrebird
+
+  web-ui:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    container_name: tor_proxy_web
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - web_network
+    environment:
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASS=${ADMIN_PASS:-your_secure_password}
+    depends_on:
+      - api-server
+
+  reverse-proxy:
+    image: caddy:2-alpine
+    container_name: tor_proxy_caddy
+    restart: unless-stopped
+    ports:
+      - "8445:8445"
+    volumes:
+      - ./config/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - web_network
+    depends_on:
+      - web-ui
+      - api-server
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  tor_network:
+    driver: bridge
+  web_network:
+    driver: bridge
