@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tor Proxy Server - Панель управления</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tor Proxy Server</h1>
+            <p>Панель управления для прокси-сервера с поддержкой Tor, Bridges и Lyrebird</p>
+        </header>
+
+        <section class="status-section">
+            <h2>Статус сервисов</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-label">Tor:</span>
+                    <span id="tor-status" class="status-value unknown">Неизвестно</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Lyrebird:</span>
+                    <span id="lyrebird-status" class="status-value unknown">Неизвестно</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Текущий IP:</span>
+                    <span id="current-ip" class="status-value">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Мосты:</span>
+                    <span id="bridges-status" class="status-value unknown">-</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="controls-section">
+            <h2>Управление</h2>
+            <div class="control-buttons">
+                <button id="start-btn" class="btn btn-success">Старт</button>
+                <button id="stop-btn" class="btn btn-danger">Стоп</button>
+                <button id="restart-btn" class="btn btn-warning">Рестарт</button>
+                <button id="newnym-btn" class="btn btn-info">NEWNYM</button>
+            </div>
+        </section>
+
+        <section class="logs-section">
+            <h2>Логи</h2>
+            <div class="logs-controls">
+                <select id="log-service">
+                    <option value="all">Все сервисы</option>
+                    <option value="tor">Tor</option>
+                    <option value="lyrebird">Lyrebird</option>
+                </select>
+                <button id="refresh-logs" class="btn btn-secondary">Обновить</button>
+            </div>
+            <pre id="logs-output" class="logs-output">Загрузка логов...</pre>
+        </section>
+
+        <section class="bridges-section">
+            <h2>Мосты</h2>
+            <div class="add-bridge-form">
+                <input type="text" id="bridge-input" placeholder="Введите конфигурацию моста (например: Bridge obfs4 ...)">
+                <button id="add-bridge-btn" class="btn btn-primary">Добавить мост</button>
+            </div>
+            <div id="bridge-list" class="bridge-list">
+                <!-- Список мостов будет добавлен динамически -->
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
